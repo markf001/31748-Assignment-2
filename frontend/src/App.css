@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #8B5CF6;      
+  --primary-hover: #7C3AED;
+  --delete: #EF4444;        
+  --delete-hover: #DC2626;
+  
+  --background: #0f0f12;    
+  --card-bg: #1a1a20;      
+  --input-bg: #272730;    
+  --border-color: #2d2d38; 
+  
+  --text-main: #F9FAFB;    
+  --text-muted: #9CA3AF;    
+  
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased; 
+}
+
+.app-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  color: var(--text-main);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase; 
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.btn-nav { background-color: transparent; color: var(--text-muted); }
+.btn-nav:hover { color: var(--text-main); background-color: rgba(255, 255, 255, 0.05); }
+
+.btn-primary { background-color: var(--primary); color: white; }
+.btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+
+.btn-delete { background-color: var(--delete); color: white; }
+.btn-delete:hover { background-color: var(--delete-hover); }
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.book-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  width: 100%; 
+  box-sizing: border-box;
+}
+
+.book-card:hover {
+  transform: translateY(-4px); 
+  border-color: var(--primary); 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.book-card h3 { 
+  margin: 0 0 5px 0; 
+  font-size: 1.25rem; 
+  font-weight: 600;
+  color: var(--text-main); 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-author { margin: 0 0 15px 0; color: var(--primary); font-size: 0.9rem; font-weight: 600; }
+
+.book-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  color: var(--text-muted);
+}
+
+.book-details strong { color: var(--text-main); font-weight: 500; }
+
+.book-comments {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-bottom: 15px;
+  border-left: 3px solid var(--primary);
+  color: var(--text-muted);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.card-actions { display: flex; gap: 10px; }
+
+.form-container {
+  background-color: var(--card-bg);
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group { margin-bottom: 15px; }
+.form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+.form-row > div { flex: 1; }
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-sizing: border-box; 
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); 
+}
+
+.form-actions { display: flex; gap: 10px; margin-top: 25px; }
