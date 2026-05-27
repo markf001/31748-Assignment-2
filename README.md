@@ -19,7 +19,7 @@ There is also an admin function to manage and view a user's lists.
 
 ## How to Run the App
 1. Create a .env file in the backend directory
-2. I used mongodb cloud for this assignment, so create and activate a cluster
+2. I used mongodb cloud for this assignment, so create and activate a cluster on an account
 3. Add your MongoDB connection string from the cluster and a make up hidden key for JWT:
    * MONGO_URI=
    * JWT_SECRET=book_tracker_hidden_key_{your key here}
