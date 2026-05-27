@@ -1,0 +1,80 @@
+[{
+  "_id": {
+    "$oid": "6a16bd21eefbc8f79486b910"
+  },
+  "user": {
+    "$oid": "6a16bd10eefbc8f79486b90f"
+  },
+  "title": "dadasdasd",
+  "author": "asdasdas",
+  "chapters": 11,
+  "chaptersRead": 11,
+  "status": "Completed",
+  "rating": 2,
+  "comments": "sdasdasd",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a16c486eefbc8f79486b911"
+  },
+  "user": {
+    "$oid": "6a16bd10eefbc8f79486b90f"
+  },
+  "title": "poop",
+  "author": "fart ",
+  "chapters": 11,
+  "chaptersRead": 11,
+  "status": "Plan to Read",
+  "rating": 2,
+  "comments": "fasdr",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a16eaa3eefbc8f79486b919"
+  },
+  "user": {
+    "$oid": "6a16ea73eefbc8f79486b916"
+  },
+  "title": "booooook",
+  "author": "mark",
+  "chapters": 1122,
+  "chaptersRead": 122,
+  "status": "Plan to Read",
+  "rating": 3,
+  "comments": "ok i guess",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a16eac9eefbc8f79486b91a"
+  },
+  "user": {
+    "$oid": "6a16ea78eefbc8f79486b917"
+  },
+  "title": "absolute regression",
+  "author": "someone",
+  "chapters": 110,
+  "chaptersRead": 57,
+  "status": "Reading",
+  "rating": 4,
+  "comments": "very good! i like the story and characters",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a16eae2eefbc8f79486b91b"
+  },
+  "user": {
+    "$oid": "6a16ea7deefbc8f79486b918"
+  },
+  "title": "something book",
+  "author": "boooooksss",
+  "chapters": 21,
+  "chaptersRead": 11,
+  "status": "Dropped",
+  "rating": 2,
+  "comments": "bad so i dropped it",
+  "__v": 0
+}]
