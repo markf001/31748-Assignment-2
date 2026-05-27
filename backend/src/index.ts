@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 import { Book } from './models/Book';
 import authRoutes from './routes/auth';
+import { verifyToken, requireAdmin } from './middleware/authMiddleware';
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ app.get('/api/books', async (req: Request, res: Response) => {
 }
 );
 
-app.post('/api/books', async (req: Request, res: Response) => {
+app.post('/api/books', verifyToken, async (req: Request, res: Response) => {
   try {
     const newBook = new Book(req.body); 
     const savedBook = await newBook.save(); 
@@ -50,7 +51,7 @@ app.post('/api/books', async (req: Request, res: Response) => {
 }
 );
 
-app.delete('/api/books/:id', async (req: Request, res: Response) => {
+app.delete('/api/books/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const bookId = req.params.id; 
     const deletedBook = await Book.findByIdAndDelete(bookId);
@@ -68,7 +69,7 @@ app.delete('/api/books/:id', async (req: Request, res: Response) => {
 }
 );
 
-app.put('/api/books/:id', async (req: Request, res: Response) => {
+app.put('/api/books/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
     try {
         const bookId = req.params.id;
         const updatedData = req.body;

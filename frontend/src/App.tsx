@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import './App.css';
+import { AuthContext } from './context/AuthContext';
+import { Login } from './components/Login';
+import { Register } from './components/Register';
 
 export interface Book {
   _id?: string;
@@ -30,23 +33,31 @@ export default function App() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'a-z' | 'z-a'>('newest');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const authContext = useContext(AuthContext);
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
 
-useEffect(() => {
-  fetch('http://localhost:5000/api/books')
-    .then((res) => {
-      if (!res.ok) throw new Error("Database connection failed");
-      return res.json();
+  useEffect(() => {
+    if (!authContext?.isAuthenticated) return;
+
+    fetch('http://localhost:5000/api/books', {
+      headers: {
+        'Authorization': `Bearer ${authContext.token}`
+      }
     })
-    .then((data) => {
-      setBooks(data);
-      setIsLoading(false);
-    })
-    .catch((err) => {
-      console.error("Could not get books:", err);
-      setError("Failed to load books. Is the server running?");
-      setIsLoading(false);
-    });
-}, []);
+      .then((res) => {
+        if (!res.ok) throw new Error("Database connection failed");
+        return res.json();
+      })
+      .then((data) => {
+        setBooks(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Could not get books:", err);
+        setError("Failed to load books. Is the server running?");
+        setIsLoading(false);
+      });
+  }, [authContext?.isAuthenticated, authContext?.token]);
 
   const handleEditClick = (book: Book) => {
     if (!book._id) return;
@@ -74,17 +85,24 @@ useEffect(() => {
       if (editingId) {
         const response = await fetch(`http://localhost:5000/api/books/${editingId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authContext?.token}`
+          },
           body: JSON.stringify(formData),
         });
         if (response.ok) {
           const updatedBook = await response.json();
           setBooks(books.map((b) => (b._id === editingId ? updatedBook : b)));
         }
-      } else {
+      }
+      else {
         const response = await fetch('http://localhost:5000/api/books', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authContext?.token}`
+          },
           body: JSON.stringify(formData),
         });
         if (response.ok) {
@@ -95,21 +113,27 @@ useEffect(() => {
       setFormData(emptyForm);
       setEditingId(null);
       setCurrentView('home');
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Network error:", error);
     }
   };
 
   const handleDelete = async (idToDelete: string) => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
+    
     try {
       const response = await fetch(`http://localhost:5000/api/books/${idToDelete}`, {
         method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${authContext?.token}` 
+        }
       });
       if (response.ok) {
         setBooks(books.filter((book) => book._id !== idToDelete));
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Network error:", error);
     }
   };
@@ -122,7 +146,19 @@ const sortedBooks = [...books].sort((a, b) => {
     if (sortBy === 'oldest') return (a._id || '').localeCompare(b._id || '');
     
     return 0;
-  });
+});
+  
+if (!authContext?.isAuthenticated) {
+  return (
+    <div className="app-container">
+      {authView === 'login' ? (
+        <Login onSwitchToRegister={() => setAuthView('register')} />
+      ) : (
+        <Register onSwitchToLogin={() => setAuthView('login')} />
+      )}
+    </div>
+  );
+}
 
   return (
     <div className="app-container">
