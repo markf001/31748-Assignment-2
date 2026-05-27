@@ -26,7 +26,7 @@ There is also an admin function to manage and view a user's lists.
 4. cd to backend folder in a terminal, install dependencies and run the server:
    * cd backend
    * npm install
-   * npx tsx src/index.ts
+   * npx tsx src/index.ts (if it asks to install more dependencies, then follow it and run the command again)
 5. cd to frontend folder in another terminal, install dependencies and run vite:
    * cd frontend
    * npm install
