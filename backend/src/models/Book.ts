@@ -1,6 +1,22 @@
 import mongoose from 'mongoose';
 
+export interface IBook extends Document {
+    user: mongoose.Types.ObjectId; 
+    title: string;
+    author: string;
+    chapters: number;
+    chaptersRead: number;
+    status: string;
+    rating: number;
+    comments: string;
+}
+
 const bookSchema = new mongoose.Schema({
+    user: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
     title: { 
         type: String, 
         required: true 

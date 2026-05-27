@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 import { Book } from './models/Book';
 import authRoutes from './routes/auth';
-import { verifyToken, requireAdmin } from './middleware/authMiddleware';
+import { verifyToken, AuthRequest } from './middleware/authMiddleware';
 
 dotenv.config();
 
@@ -27,59 +27,70 @@ mongoose.connect(mongoURI)
   .then(() => console.log('Successfully connected'))
   .catch((err) => console.error('Connection error:', err));
 
-app.get('/api/books', async (req: Request, res: Response) => {
+app.get('/api/books', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
-    const books = await Book.find(); 
+    const query = req.user?.role === 'admin' ? {} : { user: req.user?.userId };
+    const books = await Book.find(query); 
     res.json(books);                
   }
   catch (error) {
     res.status(500).json({ message: "Error fetching books" });
   }
-}
-);
+});
 
-app.post('/api/books', verifyToken, async (req: Request, res: Response) => {
+app.post('/api/books', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
-    const newBook = new Book(req.body); 
+    const newBook = new Book({
+      ...req.body,
+      user: req.user?.userId 
+    }); 
     const savedBook = await newBook.save(); 
-    
     res.status(201).json(savedBook); 
   }
   catch (error) {
     res.status(400).json({ message: "Failed to save book", error });
   }
-}
-);
+});
 
-app.delete('/api/books/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+app.delete('/api/books/:id', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
     const bookId = req.params.id; 
-    const deletedBook = await Book.findByIdAndDelete(bookId);
+    const book = await Book.findById(bookId);
 
-    if (!deletedBook) {
+    if (!book) {
       res.status(404).json({ message: "Book not found!" });
       return;
     }
 
+    if (book.user.toString() !== req.user?.userId && req.user?.role !== 'admin') {
+      res.status(403).json({ message: "Not authorised to delete this book" });
+      return;
+    }
+
+    await Book.findByIdAndDelete(bookId);
     res.json({ message: "Successfully deleted!" });
   }
   catch (error) {
     res.status(500).json({ message: "Server error while deleting" });
   }
-}
-);
+});
 
-app.put('/api/books/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+app.put('/api/books/:id', verifyToken, async (req: AuthRequest, res: Response) => {
     try {
         const bookId = req.params.id;
-        const updatedData = req.body;
-        const updatedBook = await Book.findByIdAndUpdate(bookId, updatedData, { new: true });
+        const book = await Book.findById(bookId);
 
-        if (!updatedBook) {
+        if (!book) {
             res.status(404).json({ message: "Book not found!" });
             return;
         }
 
+        if (book.user.toString() !== req.user?.userId && req.user?.role !== 'admin') {
+          res.status(403).json({ message: "Not authorised to edit this book" });
+          return;
+        }
+
+        const updatedBook = await Book.findByIdAndUpdate(bookId, req.body, { new: true });
         res.json(updatedBook);
     }
     catch (error) {

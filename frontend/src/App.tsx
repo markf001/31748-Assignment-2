@@ -211,7 +211,7 @@ if (!authContext?.isAuthenticated) {
 
           {!isLoading && !error && books.length === 0 && (
             <p style={{ textAlign: 'center', marginTop: '20px' }}>
-              Your library is empty! Add a book to get started.
+              Your library is empty!
             </p>
           )}
 
