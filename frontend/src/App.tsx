@@ -1,8 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
 import './App.css';
 import { AuthContext } from './context/AuthContext';
-import { Login } from './components/Login';
-import { Register } from './components/Register';
+import { Login } from './components/LoginPage';
+import { Register } from './components/RegisterPage';
+import { AdminPage } from './components/AdminPage';
 
 export interface Book {
   _id?: string;
@@ -26,7 +27,7 @@ const emptyForm: Book = {
 };
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'add-book'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'add-book' | 'admin'>('home');
   const [books, setBooks] = useState<Book[]>([]); 
   const [formData, setFormData] = useState<Book>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,9 +36,11 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const authContext = useContext(AuthContext);
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    if (!authContext?.isAuthenticated) return;
+    if (!authContext?.isAuthenticated)
+      return;
 
     fetch('http://localhost:5000/api/books', {
       headers: {
@@ -138,55 +141,114 @@ export default function App() {
     }
   };
 
-const sortedBooks = [...books].sort((a, b) => {
+const filteredAndSortedBooks = books
+  .filter((book) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      book.title.toLowerCase().includes(searchLower) ||
+      book.author.toLowerCase().includes(searchLower)
+    );
+  })
+  .sort((a, b) => {
     if (sortBy === 'a-z') return a.title.localeCompare(b.title);
     if (sortBy === 'z-a') return b.title.localeCompare(a.title);
-    
+
     if (sortBy === 'newest') return (b._id || '').localeCompare(a._id || '');
     if (sortBy === 'oldest') return (a._id || '').localeCompare(b._id || '');
-    
-    return 0;
-});
+      
+      return 0;
+    });
   
 if (!authContext?.isAuthenticated) {
   return (
-    <div className="app-container">
-      {authView === 'login' ? (
-        <Login onSwitchToRegister={() => setAuthView('register')} />
-      ) : (
-        <Register onSwitchToLogin={() => setAuthView('login')} />
-      )}
-    </div>
+    <div style={{
+    display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%'
+    }}>
+        {authView === 'login' ? (
+          <Login onSwitchToRegister={() => setAuthView('register')} />
+        ) : (
+          <Register onSwitchToLogin={() => setAuthView('login')} />
+        )}
+      </div>
   );
-}
+  }
+  
+  if (authContext?.role === 'admin') {
+    return (
+      <div className="app-container">
+        <header className="app-header">
+          <h1>Admin Control Panel</h1>
+          <nav>
+            <button className="btn btn-delete" onClick={() => authContext.logout()}>Log Out</button>
+          </nav>
+        </header>
+        <main>
+          <AdminPage/>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
       
       <header className="app-header">
         <h1>Book Tracker</h1>
+
+        {currentView === 'home' && (
+          <input 
+            type="text" 
+            placeholder="Search title or author" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ 
+              padding: '8px 16px', 
+              borderRadius: '6px', 
+              border: 'none', 
+              width: '100%',       
+              maxWidth: '400px',
+              backgroundColor: '#2a2a35',
+              color: 'white',
+              margin: '0 20px' 
+            }}
+          />
+        )}
+
         <nav>
           <button className="btn btn-nav" onClick={handleCancel}>Home</button>
-          <button className="btn btn-primary" onClick={() => setCurrentView('add-book')}>Add Book</button>
+          <button className="btn btn-primary" onClick={() => setCurrentView('add-book')}>Add Book</button>         
+          <button className="btn btn-delete" onClick={() => authContext.logout()}>Log Out</button>
         </nav>
       </header>
 
       {currentView === 'home' && (
         <main>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
             <h2 style={{ margin: 0 }}>Your Library</h2>
             
             {!isLoading && !error && books.length > 0 && (
-              <select 
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value as any)}
-                style={{ width: 'auto', padding: '8px 30px 8px 15px', cursor: 'pointer', fontSize: '0.85rem' }}
-              >
-                <option value="newest">Newest Added</option>
-                <option value="oldest">Oldest Added</option>
-                <option value="a-z">A - Z</option>
-                <option value="z-a">Z - A</option>
-              </select>
+              <div style={{ display: 'flex', gap: '10px' }}>                
+                <select 
+                  value={sortBy} 
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  style={{
+                    width: 'auto',
+                    padding: '8px 10px 8px 15px',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    right: 'auto'
+                  }}
+                >
+                  <option value="newest">Newest Added</option>
+                  <option value="oldest">Oldest Added</option>
+                  <option value="a-z">A - Z</option>
+                  <option value="z-a">Z - A</option>
+                </select>
+              </div>
             )}
           </div>
 
@@ -217,7 +279,7 @@ if (!authContext?.isAuthenticated) {
 
           {!isLoading && !error && books.length > 0 && (
             <div className="book-grid">
-              {sortedBooks.map((book, index) => (
+              {filteredAndSortedBooks.map((book, index) => (
                 <div key={book._id || index} className="book-card">
                   <h3>{book.title}</h3>
                   <p className="book-author">by {book.author}</p>
@@ -311,6 +373,12 @@ if (!authContext?.isAuthenticated) {
               </div>
             </form>
           </div>
+        </main>
+      )}
+
+      {currentView === 'admin' && authContext.role === 'admin' && (
+        <main>
+          <AdminPage />
         </main>
       )}
     </div>

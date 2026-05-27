@@ -2,10 +2,10 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-
 import { Book } from './models/Book';
 import authRoutes from './routes/auth';
-import { verifyToken, AuthRequest } from './middleware/authMiddleware';
+import { verifyToken, requireAdmin, AuthRequest } from './middleware/authMiddleware';
+import User from './models/User';
 
 dotenv.config();
 
@@ -96,6 +96,45 @@ app.put('/api/books/:id', verifyToken, async (req: AuthRequest, res: Response) =
     catch (error) {
         res.status(500).json({ message: "Server error while updating" });
     }
+});
+
+app.get('/api/users', verifyToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const users = await User.find().select('-password_hash');
+    res.json(users);
+  }
+  catch (error) {
+    res.status(500).json({ message: "Error getting users" });
+  }
+});
+
+app.get('/api/users/:id/books', verifyToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const userBooks = await Book.find({ user: userId });
+    res.json(userBooks);
+  }
+  catch (error) {
+    res.status(500).json({ message: "Error fetching user's books" });
+  }
+});
+
+app.delete('/api/users/:id', verifyToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.params.id;
+    
+    if (userId === req.user?.userId) {
+      res.status(400).json({ message: "You cannot delete your own account" });
+      return;
+    }
+    await User.findByIdAndDelete(userId);
+    await Book.deleteMany({ user: userId }); 
+    
+    res.json({ message: "User and their books deleted successfully" });
+  }
+  catch (error) {
+    res.status(500).json({ message: "Error deleting user" });
+  }
 });
 
 app.listen(PORT, () => {

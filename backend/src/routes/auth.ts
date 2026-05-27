@@ -64,7 +64,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     
     const token = jwt.sign(payload, secret, { expiresIn: '24h' });
 
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful', token, role: user.role });
 
   }
   catch (error) {
